@@ -1,0 +1,33 @@
+type Query {
+  auth: Auth
+  newUser: NewUser
+}
+
+type Mutation {
+  updateAuth(token: String, refreshToken: String): Auth
+  storeNewUser(input: CreateNewUserInput): NewUser
+}
+
+type Auth {
+  token: String
+  refreshToken: String
+  isLoggedIn: Boolean
+}
+
+type NewUser {
+  firstName: String
+  lastName: String
+  birthday: String
+  email: String
+  didPhoto: Boolean
+  didBio: Boolean
+}
+
+input CreateNewUserInput {
+  firstName: String
+  lastName: String
+  birthday: String
+  email: String
+  didPhoto: Boolean
+  didBio: Boolean
+}
