@@ -131,12 +131,12 @@ class NowClient extends ApolloClient {
     }
 
     const auth = getAuth(this.cache);
+    const newAuth = { token, refreshToken, isLoggedIn: !!token };
 
-    auth.token = token;
-    auth.refreshToken = refreshToken;
-    auth.isLoggedIn = !!token;
-
-    this.cache.writeQuery({ query: authQuery, data: { auth } });
+    this.cache.writeQuery({
+      query: authQuery,
+      data: { auth: Object.assign({}, auth, newAuth) },
+    });
     this.updateWsToken(token);
   };
 
@@ -152,9 +152,9 @@ class NowClient extends ApolloClient {
   restoreCache = (): Promise<void> =>
     this.persistor
       .restore()
-      .then(() => this.readQuery({ query: authQuery }))
-      .then(({ auth: { token } }) => {
-        this.updateWsToken(token);
+      .then(() => {
+        const auth = getAuth(this.cache);
+        this.updateWsToken(auth.token);
       })
       .catch(() => {});
 
