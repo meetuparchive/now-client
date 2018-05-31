@@ -29,8 +29,8 @@ type Config = {
     refreshToken: ?string
   ) => Promise<{ accessToken: ?string, refreshToken?: ?string }>,
   doLogin: (
-    username: ?string,
-    password: ?string
+    username: string,
+    password: string
   ) => Promise<{ accessToken: ?string, refreshToken?: ?string }>,
   additionalLinks: Array<ApolloLink>,
   additionalStateResolvers: any,
