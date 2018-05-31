@@ -2,7 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 import gql from 'graphql-tag';
 
-export const getAuth = gql`
+export const authQuery = gql`
   query getAuth {
     auth @client {
       token
@@ -11,3 +11,21 @@ export const getAuth = gql`
     }
   }
 `;
+
+const defaultAuth = {
+  __typename: 'Auth',
+  token: null,
+  refreshToken: null,
+  isLoggedIn: false,
+};
+
+export const getAuth = cache => {
+  try {
+    const response = cache.readQuery({
+      query: authQuery,
+    });
+    return response.auth || defaultAuth;
+  } catch (e) {
+    return defaultAuth;
+  }
+};

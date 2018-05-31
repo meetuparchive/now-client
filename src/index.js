@@ -12,7 +12,7 @@ import AuthLink from './link/AuthLink';
 import ExternalLink from './link/ExternalLink';
 import ErrorLink from './link/ErrorLink';
 import stateResolvers from './link/stateResolvers';
-import { getAuth } from './graphql';
+import { getAuth, authQuery } from './graphql';
 
 type PersistentStorage<T> = {
   getItem: (key: string) => Promise<T> | T,
@@ -27,22 +27,13 @@ type Config = {
   storage: PersistentStorage<*>,
   doRefreshToken: (
     refreshToken: ?string
-  ) => { accessToken: ?string, refreshToken?: ?string },
+  ) => Promise<{ accessToken: ?string, refreshToken?: ?string }>,
   doLogin: (
     username: ?string,
     password: ?string
   ) => Promise<{ accessToken: ?string, refreshToken?: ?string }>,
   additionalLinks: Array<ApolloLink>,
   additionalStateResolvers: any,
-};
-
-type Data = {
-  auth: {
-    __typename: string,
-    token?: ?string,
-    refreshToken?: ?string,
-    isLoggedIn?: boolean,
-  },
 };
 
 class NowClient extends ApolloClient {
@@ -54,14 +45,14 @@ class NowClient extends ApolloClient {
     const refreshLink = new TokenRefreshLink({
       accessTokenField: 'tokens',
       isTokenValidOrUndefined: () => {
-        const response = cache.readQuery({ query: getAuth });
-        const valid = typeof response.auth.token === 'string';
+        const auth = getAuth(cache);
+        const valid = typeof auth.token === 'string';
         return valid;
       },
       fetchAccessToken: () => {
-        const response = cache.readQuery({ query: getAuth });
+        const auth = getAuth(cache);
 
-        return config.doRefreshToken(response.auth.refreshToken);
+        return config.doRefreshToken(auth.refreshToken);
       },
       handleFetch: ({ accessToken, refreshToken }) => {
         if (this) {
@@ -69,10 +60,10 @@ class NowClient extends ApolloClient {
         }
       },
       handleResponse: () => ({ accessToken }) => {
-        const response = cache.readQuery({ query: getAuth });
+        const auth = getAuth(cache);
         return {
           data: {
-            tokens: { refreshToken: response.auth.refreshToken, accessToken },
+            tokens: { refreshToken: auth.refreshToken, accessToken },
           },
         };
       },
@@ -139,31 +130,13 @@ class NowClient extends ApolloClient {
       console.log('GraphiQL', `http://localhost:3000/graphiql?token=${token}`); // eslint-disable-line no-console
     }
 
-    const query = getAuth;
-
-    let data: Data = {
-      auth: { __typename: 'Auth' },
-    };
-
-    try {
-      data = this.cache.readQuery({
-        query,
-      });
-    } catch (e) {
-      // We can't read it if it's the first time
-    }
-
-    const { auth } = data || {
-      auth: {
-        __typename: 'Auth',
-      },
-    };
+    const auth = getAuth(this.cache);
 
     auth.token = token;
     auth.refreshToken = refreshToken;
     auth.isLoggedIn = !!token;
 
-    this.cache.writeQuery({ query, data: { auth } });
+    this.cache.writeQuery({ query: authQuery, data: { auth } });
     this.updateWsToken(token);
   };
 
@@ -179,7 +152,7 @@ class NowClient extends ApolloClient {
   restoreCache = (): Promise<void> =>
     this.persistor
       .restore()
-      .then(() => this.readQuery({ query: getAuth }))
+      .then(() => this.readQuery({ query: authQuery }))
       .then(({ auth: { token } }) => {
         this.updateWsToken(token);
       })
