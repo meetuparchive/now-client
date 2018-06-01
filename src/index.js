@@ -38,6 +38,7 @@ type Config = {
 
 class NowClient extends ApolloClient {
   config: Config;
+  logoutCallback: () => void = () => {};
 
   constructor(config: Config) {
     const cache = new InMemoryCache();
@@ -160,6 +161,12 @@ class NowClient extends ApolloClient {
 
   setLogoutCallBack = (callback: () => void) => {
     this.logoutCallback = callback;
+  };
+
+  isLoggedIn = () => {
+    const auth = getAuth(this.cache);
+
+    return auth.isLoggedIn;
   };
 
   login = (username: string, password: string): Promise<void> =>
