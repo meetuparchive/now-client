@@ -178,14 +178,14 @@ class NowClient extends ApolloClient {
 
   logout = (): Promise<void> => {
     // https://github.com/apollographql/apollo-cache-persist/issues/34#issuecomment-371177206
+    this.updateToken(null, null);
     this.persistor.pause();
     return this.persistor
       .purge()
-      .then(() => this.updateToken(null, null))
+      .then(() => this.resetStore())
       .then(() => {
         this.persistor.resume();
       })
-      .then(() => this.resetStore())
       .catch(
         () =>
           // catch any errors so we still logout
