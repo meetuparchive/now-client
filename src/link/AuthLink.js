@@ -3,21 +3,26 @@ import { ApolloLink } from 'apollo-link';
 import gql from 'graphql-tag';
 
 const middlewareLink = new ApolloLink((operation, forward) => {
-  const { cache } = operation.getContext();
-  const query = gql`
-    query {
-      auth @client {
-        token
+  const context = operation.getContext();
+  const { cache } = context;
+  let { authToken: token } = context;
+  if (cache && !token) {
+    const query = gql`
+      query {
+        auth @client {
+          token
+        }
       }
-    }
-  `;
-  const response = cache.readQuery({
-    query,
-  });
-  if (response.auth.token) {
+    `;
+    const response = cache.readQuery({
+      query,
+    });
+    token = response.auth.token; // eslint-disable-line prefer-destructuring
+  }
+  if (token) {
     operation.setContext({
       headers: {
-        authorization: `Bearer ${response.auth.token}`,
+        authorization: `Bearer ${token}`,
       },
     });
   }
