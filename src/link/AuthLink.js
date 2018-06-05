@@ -1,3 +1,4 @@
+// @flow
 import { ApolloLink } from 'apollo-link';
 import gql from 'graphql-tag';
 

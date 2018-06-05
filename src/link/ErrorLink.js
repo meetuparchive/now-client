@@ -1,3 +1,4 @@
+// @flow
 import { onError } from 'apollo-link-error';
 
 import { authQuery, getAuth } from '../graphql';
