@@ -170,8 +170,8 @@ class NowClient extends ApolloClient {
   };
 
   login = (username: string, password: string): Promise<void> =>
-    this.config
-      .doLogin(username, password)
+    this.resetStore()
+      .then(() => this.config.doLogin(username, password))
       .then(({ accessToken, refreshToken }) =>
         this.updateToken(accessToken, refreshToken)
       );
@@ -180,20 +180,11 @@ class NowClient extends ApolloClient {
     // https://github.com/apollographql/apollo-cache-persist/issues/34#issuecomment-371177206
     this.updateToken(null, null);
     this.persistor.pause();
-    return this.persistor
-      .purge()
-      .then(() => this.resetStore())
-      .then(() => {
-        this.persistor.resume();
-      })
-      .catch(
-        () =>
-          // catch any errors so we still logout
-          undefined
-      )
-      .then(() => {
-        this.logoutCallback();
-      });
+    return this.persistor.purge().then(() => {
+      this.persistor.resume();
+      this.logoutCallback();
+      this.resetStore();
+    });
   };
 }
 
