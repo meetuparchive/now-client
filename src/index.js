@@ -39,6 +39,7 @@ type Config = {
 class NowClient extends ApolloClient {
   config: Config;
   logoutCallback: () => void = () => {};
+  externalLink: ApolloLink;
 
   constructor(config: Config) {
     const cache = new InMemoryCache();
@@ -121,6 +122,7 @@ class NowClient extends ApolloClient {
       storage: config.storage,
       debug: config.debug,
     });
+    this.externalLink = externalLink;
   }
 
   onWsReconnected = (callback: () => void, context?: any) =>
