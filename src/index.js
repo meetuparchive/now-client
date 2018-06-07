@@ -188,6 +188,12 @@ class NowClient extends ApolloClient {
       this.resetStore();
     });
   };
+
+  resetStore = (): Promise<void> =>
+    Promise.race([
+      super.resetStore(),
+      new Promise(resolve => setTimeout(resolve, 100)),
+    ]);
 }
 
 export default NowClient;
