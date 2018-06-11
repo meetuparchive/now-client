@@ -31,7 +31,7 @@ const buildLinks = (
         return kind === 'OperationDefinition' && operation === 'subscription';
       },
       wsLink,
-      debug ? httpLink : concat(apolloLogger, httpLink)
+      debug ? concat(apolloLogger, httpLink) : httpLink
     ),
     wsLink,
     httpLink,
