@@ -21,6 +21,7 @@ const buildLinks = (
     options: {
       reconnect: true,
       lazy: true,
+      inactivityTimeout: 100,
     },
   });
 

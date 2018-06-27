@@ -39,7 +39,7 @@
     "apollo-utilities": "^1.0.12",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
-    "subscriptions-transport-ws": "^0.9.0"
+    "subscriptions-transport-ws": "^0.9.11"
   },
   "devDependencies": {
     "babel-core": "6.26.3",
