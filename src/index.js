@@ -102,9 +102,9 @@ class NowClient extends ApolloClient {
     * 7. External link, http or ws
     */
     const links = [
+      stateLink,
       retryLink,
       ErrorLink,
-      stateLink,
       refreshLink,
       AuthLink,
       ...(config.additionalLinks || []),
