@@ -64,6 +64,9 @@
     "webpack": "^4.10.1",
     "webpack-cli": "^2.1.4"
   },
+  "resolutions": {
+    "eslint-scope": "3.7.1"
+  },
   "jest": {
     "coverageDirectory": "./coverage/",
     "collectCoverageFrom": [
