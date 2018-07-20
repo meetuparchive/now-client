@@ -4,7 +4,7 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { withClientState } from 'apollo-link-state';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { InMemoryCache, defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import { CachePersistor } from 'apollo-cache-persist';
 import { RetryLink } from 'apollo-link-retry';
 
@@ -42,7 +42,17 @@ class NowClient extends ApolloClient {
   externalLink: ApolloLink;
 
   constructor(config: Config) {
-    const cache = new InMemoryCache();
+    const cache = new InMemoryCache({
+      dataIdFromObject: object => {
+        // eslint-disable-next-line no-underscore-dangle
+        switch (object.__typename) {
+          case 'Device':
+            return `device:${object.token}`;
+          default:
+            return defaultDataIdFromObject(object);
+        }
+      },
+    });
 
     const refreshLink = new TokenRefreshLink({
       accessTokenField: 'tokens',
