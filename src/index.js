@@ -7,6 +7,7 @@ import { TokenRefreshLink } from 'apollo-link-token-refresh';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { CachePersistor } from 'apollo-cache-persist';
 import { RetryLink } from 'apollo-link-retry';
+import type { ApolloReducerConfig } from 'apollo-cache-inmemory';
 
 import AuthLink from './link/AuthLink';
 import ExternalLink from './link/ExternalLink';
@@ -34,6 +35,7 @@ type Config = {
   ) => Promise<{ accessToken: ?string, refreshToken?: ?string }>,
   additionalLinks: Array<ApolloLink>,
   additionalStateResolvers: any,
+  cacheConfig?: ApolloReducerConfig,
 };
 
 class NowClient extends ApolloClient {
@@ -42,7 +44,7 @@ class NowClient extends ApolloClient {
   externalLink: ApolloLink;
 
   constructor(config: Config) {
-    const cache = new InMemoryCache();
+    const cache = new InMemoryCache(config.cacheConfig);
 
     const refreshLink = new TokenRefreshLink({
       accessTokenField: 'tokens',
